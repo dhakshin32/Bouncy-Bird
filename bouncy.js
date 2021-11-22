@@ -50,8 +50,8 @@ export class Bouncy extends Scene {
 
         this.first=Mat4.identity();
         this.last=Mat4.identity();
-        this.next_event = 1.0;
-        this.p=true;
+        this.speed =2.0;
+        
 
     }
 
@@ -64,26 +64,19 @@ export class Bouncy extends Scene {
 
     draw_ss(context, program_state, model_transform, old) {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        model_transform = model_transform.times(Mat4.translation(-15, 0, 0));
+        model_transform = model_transform.times(Mat4.translation(-10, 0, 0));
         this.shapes.sphere3.draw(context, program_state, model_transform, this.materials.planet2b);
         this.ball = model_transform;
         this.context = context;
         this.program_state = program_state;        
                                         
         this.first  = Mat4.identity().times(Mat4.translation(0, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,5));
-        this.first  = this.first.times(Mat4.translation(-t-10,0,0));
-        this.shapes.cylinder.draw(context,program_state,this.first ,this.materials.tube);
-        
-
-        if(this.first[0][3]<-15.0){
-           //console.log(this.first[0][3]);
-          this.first  = Mat4.identity().times(Mat4.translation(0, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,5));
-          this.first  = this.first.times(Mat4.translation(-t-10,0,0));
-          this.shapes.cylinder.draw(context,program_state,this.first ,this.materials.tube);
-           //console.log(this.first[0][3]);
-           //this.p=false;
+        this.first  = this.first.times(Mat4.translation(-(this.speed*t%10)-10,0,0));
+        if(this.first[0][3]<-25.0){          
+          this.first  = this.first.times(Mat4.translation(200,0,0));
         }
-           
+         
+        this.shapes.cylinder.draw(context,program_state,this.first ,this.materials.tube); 
         
         
                 
