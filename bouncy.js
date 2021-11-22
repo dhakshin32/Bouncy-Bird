@@ -1,4 +1,4 @@
-import {defs, tiny} from './examples/common.js';
+import { defs, tiny } from './examples/common.js';
 
 const {
     Vector, Vector3, vec, vec3, vec4, color, hex_color, Shader, Matrix, Mat4, Light, Shape, Material, Scene,
@@ -11,13 +11,14 @@ export class Bouncy extends Scene {
 
         // At the beginning of our program, load one of each of these shape definitions onto the GPU.
         this.shapes = {
+            background: new defs.Torus(15, 15),
             torus: new defs.Torus(15, 15),
-            torus2: new defs.Torus(50,50),
-            sphere1: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1), 
-            sphere2: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(2), 
-            sphere3: new defs.Subdivision_Sphere(3), 
+            torus2: new defs.Torus(50, 50),
+            sphere1: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(1),
+            sphere2: new (defs.Subdivision_Sphere.prototype.make_flat_shaded_version())(2),
+            sphere3: new defs.Subdivision_Sphere(3),
             sphere4: new defs.Subdivision_Sphere(4),
-            cylinder: new defs.Capped_Cylinder(10,10),
+            cylinder: new defs.Capped_Cylinder(10, 10),
             // TODO:  Fill in as many additional shape instances as needed in this key/value table.
             //        (Requirement 1)
         };
@@ -25,91 +26,84 @@ export class Bouncy extends Scene {
         // *** Materials
         this.materials = {
             tube: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("#AAFF00")}),
-            ring: new Material(new Ring_Shader()), 
+                { ambient: .4, diffusivity: .6, color: hex_color("#AAFF00") }),
+            ring: new Material(new Ring_Shader()),
             sun: new Material(new defs.Phong_Shader(),
-                {ambient: .4, diffusivity: .6, color: hex_color("000000")}), 
+                { ambient: .4, diffusivity: .6, color: hex_color("000000") }),
             planet1: new Material(new defs.Phong_Shader(),
-                {diffusivity: 1, color: hex_color("808080")}), 
+                { diffusivity: 1, color: hex_color("808080") }),
             planet2a: new Material(new defs.Phong_Shader(),
-                {specularity: 1, diffusivity: 0.1, color: hex_color("#80FFFF")}),
+                { specularity: 1, diffusivity: 0.1, color: hex_color("#80FFFF") }),
             planet2b: new Material(new Gouraud_Shader(),
-                {specularity: 1, diffusivity: 0.1, color: hex_color("#80FFFF")}),
+                { specularity: 1, diffusivity: 0.1, color: hex_color("#80FFFF") }),
             planet3: new Material(new defs.Phong_Shader(),
-                {diffusivity: 1, specularity: 1, color: hex_color("#B08040")}),
+                { diffusivity: 1, specularity: 1, color: hex_color("#B08040") }),
             planet4: new Material(new defs.Phong_Shader(),
-                {specularity: 1, color: hex_color("#427bf5")}),
+                { specularity: 1, color: hex_color("#427bf5") }),
             moon: new Material(new defs.Phong_Shader(),
-                {color: hex_color("#e042f5")}),
+                { color: hex_color("#e042f5") }),
             // TODO:  Fill in as many additional material objects as needed in this key/value table.
             //        (Requirement 4)
         }
         this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
-        this.model_transform = Mat4.identity().times(Mat4.translation(0,0,0))
+        this.model_transform = Mat4.identity().times(Mat4.translation(0, 0, 0));
+
+        this.first=Mat4.identity();
+        this.last=Mat4.identity();
+        this.next_event = 1.0;
+        this.p=true;
+
     }
 
     make_control_panel() {
-        this.key_triggered_button("Up",["o"],this.up);
-        this.key_triggered_button("Down",["k"],this.down);
+        this.key_triggered_button("Up", ["u"], this.up);
+        this.key_triggered_button("Down", ["d"], this.down);        
     }
 
-    draw_ss(context, program_state, model_transform) {
+
+
+    draw_ss(context, program_state, model_transform, old) {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        this.shapes.sphere3.draw(context, program_state, this.model_transform, this.materials.planet2b);
-        this.ball = model_transform; 
+        model_transform = model_transform.times(Mat4.translation(-15, 0, 0));
+        this.shapes.sphere3.draw(context, program_state, model_transform, this.materials.planet2b);
+        this.ball = model_transform;
         this.context = context;
-        this.program_state = program_state;
+        this.program_state = program_state;        
+                                        
+        this.first  = Mat4.identity().times(Mat4.translation(0, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,5));
+        this.first  = this.first.times(Mat4.translation(-t-10,0,0));
+        this.shapes.cylinder.draw(context,program_state,this.first ,this.materials.tube);
         
 
-        model_transform = Mat4.identity().times(Mat4.translation(-5, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,17));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
+        if(this.first[0][3]<-15.0){
+           //console.log(this.first[0][3]);
+          this.first  = Mat4.identity().times(Mat4.translation(0, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,5));
+          this.first  = this.first.times(Mat4.translation(-t-10,0,0));
+          this.shapes.cylinder.draw(context,program_state,this.first ,this.materials.tube);
+           //console.log(this.first[0][3]);
+           //this.p=false;
+        }
+           
+        
+        
+                
 
-        model_transform = Mat4.identity().times(Mat4.translation(-15, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,8));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(0, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,5));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(5, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,22));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(15, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,8));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(25, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,10));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(32, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,27));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(37, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,15));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
-        model_transform = Mat4.identity().times(Mat4.translation(45, -10, 0)).times(Mat4.rotation(0.86, 1, 0, 0)).times(Mat4.scale(1,1,18));
-        model_transform = model_transform.times(Mat4.translation(-t,0,0));
-        this.shapes.cylinder.draw(context,program_state,model_transform,this.materials.tube);
-
+        
+        
     }
 
     up() {
-        this.model_transform = (this.ball).times(Mat4.translation(0,2,0));
+        this.model_transform = (this.ball).times(Mat4.translation(0, 2, 0));
         this.ball = this.model_transform;
         this.shapes.sphere3.draw(this.context, this.program_state, this.model_transform, this.materials.planet2b);
     }
 
     down() {
-        this.model_transform = (this.ball).times(Mat4.translation(0,-2,0));
+        this.model_transform = (this.ball).times(Mat4.translation(0, -2, 0));
         this.ball = this.model_transform;
         this.shapes.sphere3.draw(this.context, this.program_state, this.model_transform, this.materials.planet2b);
     }
+
 
     display(context, program_state) {
         // display():  Called once per frame of animation.
@@ -133,7 +127,7 @@ export class Bouncy extends Scene {
         // TODO:  Fill in matrix operations and drawing code to draw the solar system scene (Requirements 3 and 4)
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
-        model_transform = this.draw_ss(context, program_state, model_transform); 
+        model_transform = this.draw_ss(context, program_state, model_transform,0);
     }
 }
 
@@ -280,7 +274,7 @@ class Gouraud_Shader extends Shader {
         // within this function, one data field at a time, to fully initialize the shader for a draw.
 
         // Fill in any missing fields in the Material object with custom defaults for this shader:
-        const defaults = {color: color(0, 0, 0, 1), ambient: 0, diffusivity: 1, specularity: 1, smoothness: 40};
+        const defaults = { color: color(0, 0, 0, 1), ambient: 0, diffusivity: 1, specularity: 1, smoothness: 40 };
         material = Object.assign({}, defaults, material);
 
         this.send_material(context, gpu_addresses, material);
