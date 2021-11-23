@@ -26,8 +26,9 @@ export class Bouncy extends Scene {
             // TODO:  Fill in as many additional material objects as needed in this key/value table.
             //        (Requirement 4)
         }
-        this.initial_camera_location = Mat4.look_at(vec3(0, 10, 20), vec3(0, 0, 0), vec3(0, 1, 0));
+        this.initial_camera_location = Mat4.look_at(vec3(0, 12, 20), vec3(0, 0, 0), vec3(0, 1, 0));
         this.model_transform = Mat4.identity().times(Mat4.translation(0, 0, 0));
+        this.ball = Mat4.identity().times(Mat4.translation(-10, 0, -9))
 
         this.first=Mat4.identity();
         this.second=Mat4.identity();
@@ -36,28 +37,27 @@ export class Bouncy extends Scene {
         this.fifth=Mat4.identity();
         this.speed =5.0;
 
-        this.h1=Math.random()*(30-5)+5;;
-        this.h2=Math.random()*(30-5)+5;;
-        this.h3=Math.random()*(30-5)+5;;
-        this.h4=Math.random()*(30-5)+5;;
-        this.h5=Math.random()*(30-5)+5;;
-        
+        this.h1=Math.random()*(30-5)+5;
+        this.h2=Math.random()*(30-5)+5;
+        this.h3=Math.random()*(30-5)+5;
+        this.h4=Math.random()*(30-5)+5;
+        this.h5=Math.random()*(30-5)+5;
+
+        this.time=0;
 
     }
 
     make_control_panel() {
-        this.key_triggered_button("Up", ["o"], this.up);
-        this.key_triggered_button("Down", ["k"], this.down);        
+        this.key_triggered_button("Up", ["u"], this.up);    
     }
 
 
 
     draw_ss(context, program_state, model_transform, old) {
+        this.time = this.time+0.5;
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        this.model_transform = model_transform.times(Mat4.translation(-10, 0, -9));
-        
-        this.shapes.ball.draw(context, program_state, this.model_transform, this.materials.ball);
-        this.ball = model_transform;
+        this.ball = this.model_transform = this.model_transform.times(Mat4.translation(0,-(this.time) / 100,0));
+        this.shapes.ball.draw(context, program_state, this.ball, this.materials.ball);
         this.context = context;
         this.program_state = program_state;        
                                         
@@ -103,14 +103,9 @@ export class Bouncy extends Scene {
     }
 
     up() {
-        this.model_transform = (this.ball).times(Mat4.translation(0, 2, 0));
+        this.model_transform = (this.ball).times(Mat4.translation(0, 3, 0));
         this.ball = this.model_transform;
-        this.shapes.ball.draw(this.context, this.program_state, this.model_transform, this.materials.ball);
-    }
-
-    down() {
-        this.model_transform = (this.ball).times(Mat4.translation(0, -2, 0));
-        this.ball = this.model_transform;
+        this.time = 0;
         this.shapes.ball.draw(this.context, this.program_state, this.model_transform, this.materials.ball);
     }
 
