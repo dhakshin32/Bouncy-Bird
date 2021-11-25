@@ -44,6 +44,11 @@ export class Bouncy extends Scene {
 
         this.time=0;
         this.color = color(Math.random(), Math.random(), Math.random(), 1);
+        this.score=0;
+        this.score_element= document.querySelector("#score");
+        this.scoreNode = document.createTextNode("");
+        this.score_element.append(this.scoreNode);
+        
 
     }
 
@@ -58,13 +63,18 @@ export class Bouncy extends Scene {
 
 
     draw_ss(context, program_state, model_transform, old) {
+        if(this.score == 0 || this.score%10.0 == 0) {
+            this.scoreNode.nodeValue=this.score;
+        }
+        this.score = this.score + 0.25;
         this.shapes.background.draw(context,program_state, Mat4.identity().times(Mat4.translation(0,0,-20)).times(Mat4.scale(50,50,50)), this.materials.background);
         this.time = this.time+0.5;
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         this.ball = this.model_transform = this.model_transform.times(Mat4.translation(0,-(this.time)/100,0));
         this.shapes.ball.draw(context, program_state, this.ball, this.materials.ball.override({color:this.color}));
         this.context = context;
-        this.program_state = program_state;        
+        this.program_state = program_state; 
+      
                                         
         if((this.speed*t%50) < 0.1) {
             this.h1 = Math.random()*(27-5)+5;
@@ -133,5 +143,14 @@ export class Bouncy extends Scene {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
         model_transform = this.draw_ss(context, program_state, model_transform,0);
+
+//         // look up the elements we want to affect
+//         this.timeElement = document.querySelector("#time");
+//         // Create text nodes to save some time for the browser.
+//         this.timeNode = document.createTextNode("");
+//         // Add those text nodes where they need to go
+//         this.timeElement.append(this.timeNode);
+//         this.timeNode.nodeValue = this.time;
+        
     }
 }
