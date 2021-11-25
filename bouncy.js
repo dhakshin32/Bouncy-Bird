@@ -48,6 +48,7 @@ export class Bouncy extends Scene {
         this.score_element= document.querySelector("#score");
         this.scoreNode = document.createTextNode("");
         this.score_element.append(this.scoreNode);
+        this.const=100;
         
 
     }
@@ -70,7 +71,12 @@ export class Bouncy extends Scene {
         this.shapes.background.draw(context,program_state, Mat4.identity().times(Mat4.translation(0,0,-20)).times(Mat4.scale(50,50,50)), this.materials.background);
         this.time = this.time+0.5;
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
-        this.ball = this.model_transform = this.model_transform.times(Mat4.translation(0,-(this.time)/100,0));
+        //increase gravity every 300 points to make game harder
+        this.fall = -(this.time)/this.const;
+        if(this.score%300 == 0){
+            this.const=this.const/1.5;
+        }
+        this.ball = this.model_transform = this.model_transform.times(Mat4.translation(0,this.fall,0));
         this.shapes.ball.draw(context, program_state, this.ball, this.materials.ball.override({color:this.color}));
         this.context = context;
         this.program_state = program_state; 
@@ -143,14 +149,6 @@ export class Bouncy extends Scene {
         const t = program_state.animation_time / 1000, dt = program_state.animation_delta_time / 1000;
         let model_transform = Mat4.identity();
         model_transform = this.draw_ss(context, program_state, model_transform,0);
-
-//         // look up the elements we want to affect
-//         this.timeElement = document.querySelector("#time");
-//         // Create text nodes to save some time for the browser.
-//         this.timeNode = document.createTextNode("");
-//         // Add those text nodes where they need to go
-//         this.timeElement.append(this.timeNode);
-//         this.timeNode.nodeValue = this.time;
         
     }
 }
