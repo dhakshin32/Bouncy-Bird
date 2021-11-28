@@ -39,7 +39,7 @@ export class Bouncy extends Scene {
         this.fifth=Mat4.identity();
 
         //speed of ball
-        this.speed =5.0;
+        this.speed = 5.0;
 
         //tube height
         this.h1=Math.random()*(30-5)+5;
@@ -52,12 +52,12 @@ export class Bouncy extends Scene {
         this.color = color(Math.random(), Math.random(), Math.random(), 1);
 
         //score valye
-        this.score=0;
-        this.score_element= document.querySelector("#score");
+        this.score = 0;
+        this.score_element = document.querySelector("#score");
         this.scoreNode = document.createTextNode("");
         this.score_element.append(this.scoreNode);
-        this.const=100;
-        this.stop=false;
+        this.const = 100;
+        this.stop = false;
 
     }
 
@@ -86,7 +86,7 @@ export class Bouncy extends Scene {
             //increase gravity every 300 points to make game harder
             this.fall = -(this.time)/this.const;
             if(this.score%300 == 0){
-                this.const=this.const/1.5;
+                this.const = this.const/1.5;
             }
 
             this.ball = this.model_transform = this.model_transform.times(Mat4.translation(0,this.fall,0));
@@ -187,7 +187,7 @@ export class Bouncy extends Scene {
         } else {
             val = val + ". You are an expert!";
         }
-        this.scoreNode.nodeValue=val;
+        this.scoreNode.nodeValue = val;
     }
 
 
