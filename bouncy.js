@@ -132,6 +132,17 @@ export class Bouncy extends Scene {
             this.shapes.cylinder.draw(context,program_state,this.third,this.materials.tube);
             this.shapes.cylinder.draw(context,program_state,this.fourth,this.materials.tube);
             this.shapes.cylinder.draw(context,program_state,this.fifth,this.materials.tube);
+            this.collision();
+        }
+    }
+
+    //check if there is a collision
+    collision(){
+        this.ball_x=0;
+        this.ball_y = this.ball[1][3];
+        this.delta_y=9.55;
+        if(((Math.abs(this.ball_x-this.first[0][3])<2)&&(this.ball_y+this.delta_y<=this.first[2][2]))||((Math.abs(this.ball_x-this.second[0][3])<2)&&(this.ball_y+this.delta_y<=this.second[2][2]))||((Math.abs(this.ball_x-this.third[0][3])<2)&&(this.ball_y+this.delta_y<=this.third[2][2]))||((Math.abs(this.ball_x-this.fourth[0][3])<2)&&(this.ball_y+this.delta_y<=this.fourth[2][2]))||((Math.abs(this.ball_x-this.fifth[0][3])<2)&&(this.ball_y+this.delta_y<=this.fifth[2][2]))){
+           this.stop_game();
         }
     }
 
@@ -148,11 +159,11 @@ export class Bouncy extends Scene {
         this.stop = true;
         let s = Math.floor(this.score / 10) * 10;
         let val = "Game Over! Your final score is " + s;
-        if(s<100) {
+        if(s<200) {
             val = val + "... better luck next time";
-        } else if(s<200) {
+        } else if(s<600) {
             val = val + ", great attempt!";
-        } else if(s<300) {
+        } else if(s<1000) {
             val = val + "... almost an expert!";
         } else {
             val = val + ". You are an expert!";
