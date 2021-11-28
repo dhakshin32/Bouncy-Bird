@@ -88,6 +88,7 @@ export class Bouncy extends Scene {
             if(this.score%300 == 0){
                 this.const=this.const/1.5;
             }
+
             this.ball = this.model_transform = this.model_transform.times(Mat4.translation(0,this.fall,0));
             this.shapes.ball.draw(context, program_state, this.ball, this.materials.ball.override({color:this.color}));
             this.context = context;
@@ -95,19 +96,19 @@ export class Bouncy extends Scene {
 
             //randomly assign tube height
             if((this.speed*t%50) < 0.1) {
-                this.h1 = Math.random()*(27-5)+5;
+                this.h1 = Math.random()*(27-6)+6;
             }
             if((this.speed*t%60) < 0.1) {
-                this.h2 = Math.random()*(27-5)+5;
+                this.h2 = Math.random()*(27-6)+6;
             }
             if((this.speed*t%70) < 0.1) {
-                this.h3 = Math.random()*(27-5)+5;
+                this.h3 = Math.random()*(27-6)+6;
             }
             if((this.speed*t%80) < 0.1) {
-                this.h4 = Math.random()*(27-5)+5;
+                this.h4 = Math.random()*(27-6)+6;
             }
             if((this.speed*t%85) < 0.1) {
-                this.h5 = Math.random()*(27-5)+5;
+                this.h5 = Math.random()*(27-6)+6;
             }
 
             //assign tube transformation
@@ -138,11 +139,29 @@ export class Bouncy extends Scene {
 
     //check if there is a collision
     collision(){
-        this.ball_x=0;
-        this.ball_y = this.ball[1][3];
-        this.delta_y=9.55;
-        if(((Math.abs(this.ball_x-this.first[0][3])<2)&&(this.ball_y+this.delta_y<=this.first[2][2]))||((Math.abs(this.ball_x-this.second[0][3])<2)&&(this.ball_y+this.delta_y<=this.second[2][2]))||((Math.abs(this.ball_x-this.third[0][3])<2)&&(this.ball_y+this.delta_y<=this.third[2][2]))||((Math.abs(this.ball_x-this.fourth[0][3])<2)&&(this.ball_y+this.delta_y<=this.fourth[2][2]))||((Math.abs(this.ball_x-this.fifth[0][3])<2)&&(this.ball_y+this.delta_y<=this.fifth[2][2]))){
-           this.stop_game();
+        let ball_x = 0;
+        let ball_y = this.ball[1][3];
+
+        //determine tube y value relative to ball
+        let t_1 = ((this.h1-6) * (9.4/21)) - 4.7;
+        let t_2 = ((this.h2-6) * (9.4/21)) - 4.7;
+        let t_3 = ((this.h3-6) * (9.4/21)) - 4.7;
+        let t_4 = ((this.h4-6) * (9.4/21)) - 4.7;
+        let t_5 = ((this.h5-6) * (9.4/21)) - 4.7;
+
+        //check if collision occurred
+        if((Math.abs(ball_x-this.first[0][3])<2)&&(ball_y<=t_1)) {
+            this.stop_game();
+        } else if((Math.abs(ball_x-this.second[0][3])<2)&&(ball_y<=t_2)) {
+            this.stop_game();
+        } else if((Math.abs(ball_x-this.third[0][3])<2)&&(ball_y<=t_3)) {
+            this.stop_game();
+        } else if((Math.abs(ball_x-this.fourth[0][3])<2)&&(ball_y<=t_4)) {
+            this.stop_game();
+        } else if((Math.abs(ball_x-this.fifth[0][3])<2)&&(ball_y<=t_5)) {
+            this.stop_game();
+        } else if(ball_y >=12) {
+            this.stop_game();
         }
     }
 
